@@ -3,6 +3,7 @@ const { Application } = require('probot')
 const myProbotApp = require('..')
 
 const issuesOpenedPayload = require('./fixtures/issues.opened.json')
+const issueCommentOpenedUnrelated = require('./fixtures/issue_comment.created.unrelated.json')
 
 test('that we can run tests', () => {
   // your real tests go here
@@ -35,6 +36,14 @@ describe('My Probot app', () => {
 
     // This test passes if the code in your index.js file calls `context.github.issues.createComment`
     expect(github.issues.createComment).toHaveBeenCalled()
+  })
+  test('does nothing with a new unrelated comment', async() => {
+    await app.receive({
+      name: 'issue_comment.created',
+      payload: issueCommentOpenedUnrelated
+    })
+
+    expect(github.issues.createComment).not.toHaveBeenCalled()
   })
 })
 
