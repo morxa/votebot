@@ -4,13 +4,14 @@ const myProbotApp = require('..')
 
 const issuesOpenedPayload = require('./fixtures/issues.opened.json')
 const issueCommentOpenedUnrelated = require('./fixtures/issue_comment.created.unrelated.json')
+const issueCommentInit = require('./fixtures/issue_comment.created.init.json')
 
 test('that we can run tests', () => {
   // your real tests go here
   expect(1 + 2 + 3).toBe(6)
 })
 
-describe('My Probot app', () => {
+describe('Votebot', () => {
   let app, github
 
   beforeEach(() => {
@@ -44,6 +45,14 @@ describe('My Probot app', () => {
     })
 
     expect(github.issues.createComment).not.toHaveBeenCalled()
+  })
+  test('initializes a vote on init command', async() => {
+    await app.receive({
+      name: 'issue_comment.created',
+      payload: issueCommentInit
+    })
+
+    expect(github.issues.createComment).toHaveBeenCalled()
   })
 })
 
