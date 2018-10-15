@@ -5,6 +5,7 @@ const myProbotApp = require('..')
 const issuesOpenedPayload = require('./fixtures/issues.opened.json')
 const issueCommentOpenedUnrelated = require('./fixtures/issue_comment.created.unrelated.json')
 const issueCommentInit = require('./fixtures/issue_comment.created.init.json')
+const issueCommentInvalidInit = require('./fixtures/issue_comment.created.invalid_init.json')
 
 test('that we can run tests', () => {
   // your real tests go here
@@ -53,6 +54,14 @@ describe('Votebot', () => {
     })
 
     expect(github.issues.createComment).toHaveBeenCalled()
+  })
+  test('prints an error on init with invalid username', async() => {
+    await app.receive({
+      name: 'issue_comment.created',
+      payload: issueCommentInvalidInit
+    })
+    expect(github.issues.createComment).toHaveBeenCalled()
+    expect(github.issues.createComment.mock.calls[0][0]['body']).toMatch(/Error/)
   })
 })
 
