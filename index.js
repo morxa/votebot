@@ -1,6 +1,5 @@
 const commands = require('probot-commands')
 const commandHandler = require('./command-handler')
-
 /**
  * This is the entry point for your Probot App.
  * @param {import('probot').Application} app - Probot's Application class.

@@ -22,7 +22,8 @@ describe('Votebot', () => {
     // This is an easy way to mock out the GitHub API
     github = {
       issues: {
-        createComment: jest.fn().mockReturnValue(Promise.resolve({}))
+        createComment: jest.fn().mockReturnValue(Promise.resolve({})),
+        addLabels: jest.fn().mockReturnValue(Promise.resolve({}))
       }
     }
     // Passes the mocked out GitHub API into out app instance
@@ -54,6 +55,8 @@ describe('Votebot', () => {
     })
 
     expect(github.issues.createComment).toHaveBeenCalled()
+    expect(github.issues.addLabels).toHaveBeenCalled()
+    expect(github.issues.addLabels.mock.calls[0][0]).toMatchObject({labels: ['vote-in-progress']})
   })
   test('prints an error on init with invalid username', async() => {
     await app.receive({
@@ -62,6 +65,7 @@ describe('Votebot', () => {
     })
     expect(github.issues.createComment).toHaveBeenCalled()
     expect(github.issues.createComment.mock.calls[0][0]['body']).toMatch(/Error/)
+    expect(github.issues.addLabels).not.toHaveBeenCalled()
   })
 })
 

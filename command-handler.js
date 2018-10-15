@@ -16,6 +16,8 @@ module.exports = (context, command) => {
     context.github.issues.createComment(context.issue({
       body: 'Voting initialized. Expecting votes from ' + voters.toString()
     }))
+    context.github.issues.addLabels(context.issue({
+      labels: ['vote-in-progress']
     }))
   }
 }
