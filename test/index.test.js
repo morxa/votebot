@@ -2,6 +2,9 @@ const { Application } = require('probot')
 // Requiring our app implementation
 const myProbotApp = require('..')
 
+const rewire = require('rewire')
+const commandHandler = rewire('../command-handler')
+
 const issuesOpenedPayload = require('./fixtures/issues.opened.json')
 const issueCommentOpenedUnrelated = require('./fixtures/issue_comment.created.unrelated.json')
 const issueCommentInit = require('./fixtures/issue_comment.created.init.json')
@@ -77,6 +80,15 @@ describe('Votebot', () => {
       payload: issueCommentStatus
     })
     expect(github.issues.getComments).toHaveBeenCalled()
+  })
+})
+
+describe('VotingInfo', () => {
+  test('sets the correct start date', async() => {
+    const VotingInfo = commandHandler.__get__('VotingInfo')
+    const votingInfo = new VotingInfo(issueComments['data'])
+    expect(votingInfo.start_date).toMatchObject(
+      new Date('2018-10-17T11:31:54Z'))
   })
 })
 

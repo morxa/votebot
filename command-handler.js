@@ -14,7 +14,24 @@ async function getIssueComments(context) {
     page += 1
   } while (count > 0)
   context.log.info(`Received ${comments.length} comments`)
-  return comments.reverse()
+  return comments
+}
+
+class VotingInfo {
+  constructor(comments) {
+    this.comments = comments.reverse()
+    // console.log(this.comments)
+    for (const comment of this.comments) {
+      const command = comment.body.match(/^\/(\w+)\b * (\w+)\b *(.*)?$/m)
+      console.log(command)
+      if (command && command[1] === 'vote' && command[2] === 'init') {
+        this.voters = command.slice(3)
+        this.start_date = new Date(comment['updated_at'])
+        this.quorum = 0.5 // TODO: make the quorum configurable
+        break
+      }
+    }
+  }
 }
 
 module.exports = async (context, command) => {
