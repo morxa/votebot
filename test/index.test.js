@@ -6,6 +6,8 @@ const issuesOpenedPayload = require('./fixtures/issues.opened.json')
 const issueCommentOpenedUnrelated = require('./fixtures/issue_comment.created.unrelated.json')
 const issueCommentInit = require('./fixtures/issue_comment.created.init.json')
 const issueCommentInvalidInit = require('./fixtures/issue_comment.created.invalid_init.json')
+const issueCommentStatus = require('./fixtures/issue_comment.created.status.json')
+const issueComments = require('./fixtures/issue_comments.json')
 
 test('that we can run tests', () => {
   // your real tests go here
@@ -23,7 +25,9 @@ describe('Votebot', () => {
     github = {
       issues: {
         createComment: jest.fn().mockReturnValue(Promise.resolve({})),
-        addLabels: jest.fn().mockReturnValue(Promise.resolve({}))
+        addLabels: jest.fn().mockReturnValue(Promise.resolve({})),
+        getComments: jest.fn().mockReturnValueOnce(
+          Promise.resolve(issueComments)).mockReturnValueOnce({'data': []})
       }
     }
     // Passes the mocked out GitHub API into out app instance
@@ -66,6 +70,13 @@ describe('Votebot', () => {
     expect(github.issues.createComment).toHaveBeenCalled()
     expect(github.issues.createComment.mock.calls[0][0]['body']).toMatch(/Error/)
     expect(github.issues.addLabels).not.toHaveBeenCalled()
+  })
+  test('prints a status comment', async() => {
+    await app.receive({
+      name: 'issue_comment.created',
+      payload: issueCommentStatus
+    })
+    expect(github.issues.getComments).toHaveBeenCalled()
   })
 })
 
