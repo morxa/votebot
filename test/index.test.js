@@ -89,6 +89,7 @@ describe('VotingInfo', () => {
     const votingInfo = new VotingInfo(issueComments['data'])
     expect(votingInfo.start_date).toMatchObject(
       new Date('2018-10-17T11:31:54Z'))
+    expect(votingInfo.voters).toEqual(['@morxa', '@test1', '@test2'])
   })
 })
 

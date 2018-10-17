@@ -25,7 +25,7 @@ class VotingInfo {
       const command = comment.body.match(/^\/(\w+)\b * (\w+)\b *(.*)?$/m)
       console.log(command)
       if (command && command[1] === 'vote' && command[2] === 'init') {
-        this.voters = command.slice(3)
+        this.voters = command[3].split(' ').filter(s => s.length > 0)
         this.start_date = new Date(comment['updated_at'])
         this.quorum = 0.5 // TODO: make the quorum configurable
         break
