@@ -3,10 +3,12 @@ async function getIssueComments(context) {
   let page = 1
   let count
   do {
-    const result = await context.github.issues.getComments(context.issue({
-      per_page: 100,
-      page: page
-    }))
+    const result = await context.github.issues.getComments(
+      context.issue({
+        per_page: 100,
+        page: page
+      })
+    )
     const newComments = result['data']
     count = newComments.length
     context.log.debug(`Received ${count} comments in iteration ${page}`)
@@ -61,9 +63,12 @@ class VotingInfo {
   }
 
   get isCompleted() {
-    return this.pro.size >= this.votesRequired ||
+    return (
+      this.pro.size >= this.votesRequired ||
       this.contra.size >= this.votesRequired ||
-      this.pro.size + this.contra.size + this.abstain.size === this.voters.length
+      this.pro.size + this.contra.size + this.abstain.size ===
+        this.voters.length
+    )
   }
 
   get result() {
@@ -72,19 +77,43 @@ class VotingInfo {
     const abstainCount = this.abstain.size
     const totalVotes = proCount + contraCount + abstainCount
     if (!this.isCompleted) {
-      return 'Vote not completed yet. Need a majority of ' +
-        this.votesRequired + ' votes to pass or reject the proposal.\n' +
+      return (
+        'Vote not completed yet. Need a majority of ' +
+        this.votesRequired +
+        ' votes to pass or reject the proposal.\n' +
         'Missing votes from: ' +
         this.voters.filter(voter => !this.votes.has(voter))
+      )
     } else if (proCount > contraCount && proCount >= this.votesRequired) {
-      return 'ACCEPTED, received ' + proCount + ' of ' + totalVotes +
-        ' votes in favor the proposal, needed ' + this.votesRequired
-    } else if (contraCount > this.pro.size && contraCount >= this.votesRequired) {
-      return 'REJECTED, received ' + contraCount + ' of ' + totalVotes +
-        ' votes against the proposal, needed ' + this.votesRequired
+      return (
+        'ACCEPTED, received ' +
+        proCount +
+        ' of ' +
+        totalVotes +
+        ' votes in favor the proposal, needed ' +
+        this.votesRequired
+      )
+    } else if (
+      contraCount > this.pro.size &&
+      contraCount >= this.votesRequired
+    ) {
+      return (
+        'REJECTED, received ' +
+        contraCount +
+        ' of ' +
+        totalVotes +
+        ' votes against the proposal, needed ' +
+        this.votesRequired
+      )
     } else {
-      return 'No majority for either side. In favor: ' + this.pro.size +
-        ', against: ' + contraCount + ', needed: ' + this.votesRequired
+      return (
+        'No majority for either side. In favor: ' +
+        this.pro.size +
+        ', against: ' +
+        contraCount +
+        ', needed: ' +
+        this.votesRequired
+      )
     }
   }
 }
@@ -96,20 +125,26 @@ module.exports = async (context, command) => {
     for (const voter of voters) {
       if (voter[0] !== '@') {
         context.log.error('Please mention all voters with "@"')
-        context.github.issues.createComment(context.issue({
-          body: 'Error in "init": Please mention all voters with "@"'
-        }))
+        context.github.issues.createComment(
+          context.issue({
+            body: 'Error in "init": Please mention all voters with "@"'
+          })
+        )
         return
       }
       // TODO: check that user actually exists
       // context.github.search.users({q: voter + ' type:user'})
     }
-    context.github.issues.createComment(context.issue({
-      body: 'Voting initialized. Expecting votes from ' + voters.toString()
-    }))
-    context.github.issues.addLabels(context.issue({
-      labels: ['vote-in-progress']
-    }))
+    context.github.issues.createComment(
+      context.issue({
+        body: 'Voting initialized. Expecting votes from ' + voters.toString()
+      })
+    )
+    context.github.issues.addLabels(
+      context.issue({
+        labels: ['vote-in-progress']
+      })
+    )
   } else if (args[0] === 'status') {
     const comments = await getIssueComments(context)
     context.log.debug('Received the following comments:\n' + comments)

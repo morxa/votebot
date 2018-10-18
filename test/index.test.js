@@ -31,8 +31,10 @@ describe('Votebot', () => {
       issues: {
         createComment: jest.fn().mockReturnValue(Promise.resolve({})),
         addLabels: jest.fn().mockReturnValue(Promise.resolve({})),
-        getComments: jest.fn().mockReturnValueOnce(
-          Promise.resolve(issueComments)).mockReturnValueOnce({'data': []})
+        getComments: jest
+          .fn()
+          .mockReturnValueOnce(Promise.resolve(issueComments))
+          .mockReturnValueOnce({ data: [] })
       }
     }
     // Passes the mocked out GitHub API into out app instance
@@ -49,7 +51,7 @@ describe('Votebot', () => {
     // This test passes if the code in your index.js file calls `context.github.issues.createComment`
     expect(github.issues.createComment).toHaveBeenCalled()
   })
-  test('does nothing with a new unrelated comment', async() => {
+  test('does nothing with a new unrelated comment', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: issueCommentOpenedUnrelated
@@ -57,7 +59,7 @@ describe('Votebot', () => {
 
     expect(github.issues.createComment).not.toHaveBeenCalled()
   })
-  test('initializes a vote on init command', async() => {
+  test('initializes a vote on init command', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: issueCommentInit
@@ -65,18 +67,22 @@ describe('Votebot', () => {
 
     expect(github.issues.createComment).toHaveBeenCalled()
     expect(github.issues.addLabels).toHaveBeenCalled()
-    expect(github.issues.addLabels.mock.calls[0][0]).toMatchObject({labels: ['vote-in-progress']})
+    expect(github.issues.addLabels.mock.calls[0][0]).toMatchObject({
+      labels: ['vote-in-progress']
+    })
   })
-  test('prints an error on init with invalid username', async() => {
+  test('prints an error on init with invalid username', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: issueCommentInvalidInit
     })
     expect(github.issues.createComment).toHaveBeenCalled()
-    expect(github.issues.createComment.mock.calls[0][0]['body']).toMatch(/Error/)
+    expect(github.issues.createComment.mock.calls[0][0]['body']).toMatch(
+      /Error/
+    )
     expect(github.issues.addLabels).not.toHaveBeenCalled()
   })
-  test('prints a status comment', async() => {
+  test('prints a status comment', async () => {
     await app.receive({
       name: 'issue_comment.created',
       payload: issueCommentStatus
@@ -89,25 +95,29 @@ describe('VotingInfo', () => {
   const VotingInfo = commandHandler.__get__('VotingInfo')
   const votingInfoInit = new VotingInfo(issueComments['data'])
   const votingInfo = new VotingInfo(issueCommentsPassed['data'])
-  test('sets the correct start date', async() => {
+  test('sets the correct start date', async () => {
     expect(votingInfoInit.start_date).toMatchObject(
-      new Date('2018-10-17T11:31:54Z'))
+      new Date('2018-10-17T11:31:54Z')
+    )
   })
-  test('parses the voters correctly', async() => {
+  test('parses the voters correctly', async () => {
     expect(votingInfo.votesRequired).toEqual(2)
     expect(new Set(votingInfo.voters)).toEqual(
-      new Set(['@morxa', '@test1', '@test2']))
+      new Set(['@morxa', '@test1', '@test2'])
+    )
   })
-  test('identifies a successful vote', async() => {
+  test('identifies a successful vote', async () => {
     expect(new Set(votingInfo.pro)).toEqual(new Set(['@morxa', '@test1']))
     expect(new Set(votingInfo.contra)).toEqual(new Set(['@test2']))
     expect(votingInfo.isCompleted).toBeTruthy()
     expect(votingInfo.result).toMatch(/ACCEPTED/)
   })
-  test('identifies a rejected vote', async() => {
+  test('identifies a rejected vote', async () => {
     const votingInfoRejected = new VotingInfo(issueCommentsRejected['data'])
     expect(new Set(votingInfoRejected.pro)).toEqual(new Set(['@morxa']))
-    expect(new Set(votingInfoRejected.contra)).toEqual(new Set(['@test1', '@test2']))
+    expect(new Set(votingInfoRejected.contra)).toEqual(
+      new Set(['@test1', '@test2'])
+    )
     expect(votingInfoRejected.isCompleted).toBeTruthy()
     expect(votingInfoRejected.result).toMatch(/REJECTED/)
   })
