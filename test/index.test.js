@@ -12,6 +12,7 @@ const issueCommentInvalidInit = require('./fixtures/issue_comment.created.invali
 const issueCommentStatus = require('./fixtures/issue_comment.created.status.json')
 const issueComments = require('./fixtures/issue_comments.json')
 const issueCommentsPassed = require('./fixtures/issue_comments.vote_passed.json')
+const issueCommentsRejected = require('./fixtures/issue_comments.vote_rejected.json')
 
 test('that we can run tests', () => {
   // your real tests go here
@@ -102,5 +103,12 @@ describe('VotingInfo', () => {
     expect(new Set(votingInfo.contra)).toEqual(new Set(['@test2']))
     expect(votingInfo.isCompleted).toBeTruthy()
     expect(votingInfo.result).toMatch(/ACCEPTED/)
+  })
+  test('identifies a rejected vote', async() => {
+    const votingInfoRejected = new VotingInfo(issueCommentsRejected['data'])
+    expect(new Set(votingInfoRejected.pro)).toEqual(new Set(['@morxa']))
+    expect(new Set(votingInfoRejected.contra)).toEqual(new Set(['@test1', '@test2']))
+    expect(votingInfoRejected.isCompleted).toBeTruthy()
+    expect(votingInfoRejected.result).toMatch(/REJECTED/)
   })
 })
