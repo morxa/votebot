@@ -11,6 +11,7 @@ const issueCommentInit = require('./fixtures/issue_comment.created.init.json')
 const issueCommentInvalidInit = require('./fixtures/issue_comment.created.invalid_init.json')
 const issueCommentStatus = require('./fixtures/issue_comment.created.status.json')
 const issueComments = require('./fixtures/issue_comments.json')
+const issueCommentsPassed = require('./fixtures/issue_comments.vote_passed.json')
 
 test('that we can run tests', () => {
   // your real tests go here
@@ -84,14 +85,22 @@ describe('Votebot', () => {
 })
 
 describe('VotingInfo', () => {
+  const VotingInfo = commandHandler.__get__('VotingInfo')
+  const votingInfoInit = new VotingInfo(issueComments['data'])
+  const votingInfo = new VotingInfo(issueCommentsPassed['data'])
   test('sets the correct start date', async() => {
-    const VotingInfo = commandHandler.__get__('VotingInfo')
-    const votingInfo = new VotingInfo(issueComments['data'])
-    expect(votingInfo.start_date).toMatchObject(
+    expect(votingInfoInit.start_date).toMatchObject(
       new Date('2018-10-17T11:31:54Z'))
-    expect(votingInfo.voters).toEqual(['@morxa', '@test1', '@test2'])
+  })
+  test('parses the voters correctly', async() => {
+    expect(votingInfo.votesRequired).toEqual(2)
+    expect(new Set(votingInfo.voters)).toEqual(
+      new Set(['@morxa', '@test1', '@test2']))
+  })
+  test('identifies a successful vote', async() => {
+    expect(new Set(votingInfo.pro)).toEqual(new Set(['@morxa', '@test1']))
+    expect(new Set(votingInfo.contra)).toEqual(new Set(['@test2']))
+    expect(votingInfo.isCompleted).toBeTruthy()
+    expect(votingInfo.result).toMatch(/ACCEPTED/)
   })
 })
-
-// For more information about testing with Jest see:
-// https://facebook.github.io/jest/

@@ -20,16 +20,71 @@ async function getIssueComments(context) {
 class VotingInfo {
   constructor(comments) {
     this.comments = comments.reverse()
-    // console.log(this.comments)
     for (const comment of this.comments) {
       const command = comment.body.match(/^\/(\w+)\b * (\w+)\b *(.*)?$/m)
-      console.log(command)
       if (command && command[1] === 'vote' && command[2] === 'init') {
-        this.voters = command[3].split(' ').filter(s => s.length > 0)
+        this.voters = new Set(command[3].split(' ').filter(s => s.length > 0))
         this.start_date = new Date(comment['updated_at'])
         this.quorum = 0.5 // TODO: make the quorum configurable
         break
       }
+    }
+    this.pro = new Set()
+    this.contra = new Set()
+    this.abstain = new Set()
+    let processed_voters = new Set()
+    for (const comment of this.comments) {
+      let commentDate = new Date(comment['updated_at'])
+      if (commentDate < this.start_date) {
+        continue
+      }
+      const command = comment.body.match(/^\/(\w+)\b *(.*)?$/m)
+      if (command && command[1] === 'vote') {
+        let voter = '@' + comment['user']['login']
+        if (!processed_voters.has(voter) && this.voters.has(voter)) {
+          processed_voters.add(voter)
+          const vote = command[2].trim()
+          if (vote === '+1' || vote === 'yes') {
+            this.pro.add(voter)
+          } else if (vote === '-1' || vote === 'no') {
+            this.contra.add(voter)
+          } else if (vote === '0' || vote === 'abstain') {
+            this.abstain.add(voter)
+          }
+        }
+      }
+    }
+  }
+
+  get votesRequired() {
+    return Math.floor(this.quorum * this.voters.size) + 1
+  }
+
+  get isCompleted() {
+    return this.pro.size >= this.votesRequired ||
+      this.contra.size >= this.votesRequired ||
+      this.pro.size + this.contra.size + this.abstain.size === this.voters.length
+  }
+
+  get result() {
+    const proCount = this.pro.size
+    const contraCount = this.contra.size
+    const abstainCount = this.abstain.size
+    const totalVotes = proCount + contraCount + abstainCount
+    if (!this.isCompleted) {
+      return 'Vote not completed yet. Need a majority of ' +
+        this.votesRequired + ' votes to pass or reject the proposal.\n' +
+        'Missing votes from: ' +
+        this.voters.filter(voter => !this.votes.has(voter))
+    } else if (proCount > contraCount && proCount >= this.votesRequired) {
+      return 'ACCEPTED, received ' + proCount + ' of ' + totalVotes +
+        ' votes in favor the proposal, needed ' + this.votesRequired
+    } else if (contraCount > this.pro.size && contraCount >= this.votesRequired) {
+      return 'REJECTED, received ' + contraCount + ' of ' + totalVotes +
+        ' votes against the proposal, needed ' + this.votesRequired
+    } else {
+      return 'No majority for either side. In favor: ' + this.pro.size +
+        ', against: ' + contraCount + ', needed: ' + this.votesRequired
     }
   }
 }
