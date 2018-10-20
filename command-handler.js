@@ -66,8 +66,7 @@ class VotingInfo {
     return (
       this.pro.size >= this.votesRequired ||
       this.contra.size >= this.votesRequired ||
-      this.pro.size + this.contra.size + this.abstain.size ===
-        this.voters.length
+      this.pro.size + this.contra.size + this.abstain.size === this.voters.size
     )
   }
 
@@ -107,7 +106,7 @@ class VotingInfo {
       )
     } else {
       return (
-        'No majority for either side. In favor: ' +
+        'TIED, no majority for either side. In favor: ' +
         this.pro.size +
         ', against: ' +
         contraCount +

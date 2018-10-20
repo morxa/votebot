@@ -13,6 +13,7 @@ const issueCommentStatus = require('./fixtures/issue_comment.created.status.json
 const issueComments = require('./fixtures/issue_comments.json')
 const issueCommentsPassed = require('./fixtures/issue_comments.vote_passed.json')
 const issueCommentsRejected = require('./fixtures/issue_comments.vote_rejected.json')
+const issueCommentsTied = require('./fixtures/issue_comments.vote_tied.json')
 
 test('that we can run tests', () => {
   // your real tests go here
@@ -120,5 +121,13 @@ describe('VotingInfo', () => {
     )
     expect(votingInfoRejected.isCompleted).toBeTruthy()
     expect(votingInfoRejected.result).toMatch(/REJECTED/)
+  })
+  test('identifies a tied vote', async () => {
+    const votingInfo = new VotingInfo(issueCommentsTied['data'])
+    expect(new Set(votingInfo.pro)).toEqual(new Set(['@morxa']))
+    expect(new Set(votingInfo.contra)).toEqual(new Set(['@test1']))
+    expect(new Set(votingInfo.abstain)).toEqual(new Set(['@test2']))
+    expect(votingInfo.isCompleted).toBeTruthy()
+    expect(votingInfo.result).toMatch(/TIED/)
   })
 })
