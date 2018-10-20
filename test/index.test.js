@@ -10,6 +10,7 @@ const issueCommentOpenedUnrelated = require('./fixtures/issue_comment.created.un
 const issueCommentInit = require('./fixtures/issue_comment.created.init.json')
 const issueCommentInvalidInit = require('./fixtures/issue_comment.created.invalid_init.json')
 const issueCommentStatus = require('./fixtures/issue_comment.created.status.json')
+const issueCommentPlusOne = require('./fixtures/issue_comment.created.vote-plus-1.json')
 const issueComments = require('./fixtures/issue_comments.json')
 const issueCommentsPassed = require('./fixtures/issue_comments.vote_passed.json')
 const issueCommentsRejected = require('./fixtures/issue_comments.vote_rejected.json')
@@ -32,6 +33,7 @@ describe('Votebot', () => {
       issues: {
         createComment: jest.fn().mockReturnValue(Promise.resolve({})),
         addLabels: jest.fn().mockReturnValue(Promise.resolve({})),
+        removeLabel: jest.fn().mockReturnValue(Promise.resolve({})),
         getComments: jest
           .fn()
           .mockReturnValueOnce(Promise.resolve(issueComments))
@@ -89,6 +91,32 @@ describe('Votebot', () => {
       payload: issueCommentStatus
     })
     expect(github.issues.getComments).toHaveBeenCalled()
+    expect(github.issues.createComment).toHaveBeenCalled()
+  })
+  test('detects the end of a voting', async () => {
+    github.issues.getComments = jest
+      .fn()
+      .mockReturnValueOnce(Promise.resolve(issueCommentsPassed))
+      .mockReturnValue(Promise.resolve({ data: [] }))
+    github.issues.getIssueLabels = jest
+      .fn()
+      .mockReturnValueOnce(Promise.resolve([{ name: 'vote-in-progress' }]))
+    await app.receive({
+      name: 'issue_comment.created',
+      payload: issueCommentPlusOne
+    })
+    expect(github.issues.removeLabel).toHaveBeenCalled()
+    expect(github.issues.removeLabel.mock.calls[0][0]).toMatchObject({
+      name: 'vote-in-progress'
+    })
+    expect(github.issues.addLabels).toHaveBeenCalled()
+    expect(github.issues.addLabels.mock.calls[0][0]).toMatchObject({
+      labels: ['vote-completed']
+    })
+    expect(github.issues.createComment).toHaveBeenCalled()
+    expect(github.issues.createComment.mock.calls[0][0].body).toMatch(
+      /ACCEPTED/
+    )
   })
 })
 

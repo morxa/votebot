@@ -147,6 +147,32 @@ module.exports = async (context, command) => {
   } else if (args[0] === 'status') {
     const comments = await getIssueComments(context)
     context.log.debug('Received the following comments:\n' + comments)
-    // const votingInfo = new VotingInfo(getIssueComments(context))
+    const votingInfo = new VotingInfo(comments)
+    context.github.issues.createComment(
+      context.issue({
+        body: votingInfo.status
+      })
+    )
+  } else {
+    let labelPromise = context.github.issues.getIssueLabels(context)
+    let commentsPromise = getIssueComments(context)
+    labelPromise.then(labels => {
+      if (labels.filter(label => label.name == 'vote-in-progress')) {
+        commentsPromise.then(comments => {
+          const votingInfo = new VotingInfo(comments)
+          if (votingInfo.isCompleted) {
+            context.github.issues.createComment(
+              context.issue({ body: votingInfo.result })
+            )
+            context.github.issues.removeLabel(
+              context.issue({ name: 'vote-in-progress' })
+            )
+            context.github.issues.addLabels(
+              context.issue({ labels: ['vote-completed'] })
+            )
+          }
+        })
+      }
+    })
   }
 }
