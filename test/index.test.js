@@ -15,6 +15,7 @@ const issueComments = require('./fixtures/issue_comments.json')
 const issueCommentsPassed = require('./fixtures/issue_comments.vote_passed.json')
 const issueCommentsRejected = require('./fixtures/issue_comments.vote_rejected.json')
 const issueCommentsTied = require('./fixtures/issue_comments.vote_tied.json')
+const issueCommentsDoubleVote = require('./fixtures/issue_comments.double_vote')
 
 test('that we can run tests', () => {
   // your real tests go here
@@ -157,5 +158,12 @@ describe('VotingInfo', () => {
     expect(new Set(votingInfo.abstain)).toEqual(new Set(['@test2']))
     expect(votingInfo.isCompleted).toBeTruthy()
     expect(votingInfo.result).toMatch(/TIED/)
+  })
+  test('always considers the last vote of a user', async () => {
+    const votingInfo = new VotingInfo(issueCommentsDoubleVote['data'])
+    expect(new Set(votingInfo.pro)).toEqual(new Set(['@morxa', '@test1']))
+    expect(new Set(votingInfo.contra)).toEqual(new Set())
+    expect(votingInfo.isCompleted).toBeTruthy()
+    expect(votingInfo.result).toMatch(/ACCEPTED/)
   })
 })

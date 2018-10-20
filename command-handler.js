@@ -21,7 +21,10 @@ async function getIssueComments(context) {
 
 class VotingInfo {
   constructor(comments) {
-    this.comments = comments.reverse()
+    this.comments = comments.sort(
+      // descending order by date
+      (c1, c2) => new Date(c2['updated_at']) - new Date(c1['updated_at'])
+    )
     for (const comment of this.comments) {
       const command = comment.body.match(/^\/(\w+)\b * (\w+)\b *(.*)?$/m)
       if (command && command[1] === 'vote' && command[2] === 'init') {

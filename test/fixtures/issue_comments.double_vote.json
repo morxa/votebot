@@ -1,0 +1,59 @@
+{
+  "data": [
+    {
+      "user": {
+        "login": "morxa",
+        "type": "User",
+        "site_admin": false
+      },
+      "created_at": "2018-10-17T11:24:38Z",
+      "updated_at": "2018-10-17T11:24:38Z",
+      "author_association": "OWNER",
+      "body": "/vote init @morxa @test1"
+    },
+    {
+      "user": {
+        "login": "morxa",
+        "type": "User",
+        "site_admin": false
+      },
+      "created_at": "2018-10-17T11:28:30Z",
+      "updated_at": "2018-10-17T11:28:30Z",
+      "author_association": "OWNER",
+      "body": "/vote -1"
+    },
+    {
+      "user": {
+        "login": "test1",
+        "type": "User",
+        "site_admin": false
+      },
+      "created_at": "2018-10-17T11:28:40Z",
+      "updated_at": "2018-10-17T11:28:40Z",
+      "author_association": "OWNER",
+      "body": "/vote +1"
+    },
+    {
+      "user": {
+        "login": "morxa",
+        "type": "User",
+        "site_admin": false
+      },
+      "created_at": "2018-10-17T11:28:41Z",
+      "updated_at": "2018-10-17T11:28:41Z",
+      "author_association": "NONE",
+      "body": "/vote +1"
+    },
+    {
+      "user": {
+        "login": "morxa",
+        "type": "User",
+        "site_admin": false
+      },
+      "created_at": "2018-10-17T11:28:39Z",
+      "updated_at": "2018-10-17T11:28:39Z",
+      "author_association": "NONE",
+      "body": "/vote -1"
+    }
+  ]
+}
