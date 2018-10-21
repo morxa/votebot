@@ -93,6 +93,7 @@ describe('Votebot', () => {
     })
     expect(github.issues.getComments).toHaveBeenCalled()
     expect(github.issues.createComment).toHaveBeenCalled()
+    expect(github.issues.createComment.mock.calls[0][0]['body']).toBeDefined()
   })
   test('detects the end of a voting', async () => {
     github.issues.getComments = jest

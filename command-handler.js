@@ -163,7 +163,7 @@ module.exports = async (context, command) => {
     const votingInfo = new VotingInfo(comments)
     context.github.issues.createComment(
       context.issue({
-        body: votingInfo.status
+        body: votingInfo.result
       })
     )
   } else {
