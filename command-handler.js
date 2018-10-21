@@ -79,12 +79,22 @@ class VotingInfo {
     const abstainCount = this.abstain.size
     const totalVotes = proCount + contraCount + abstainCount
     if (!this.isCompleted) {
+      let missingVotes = []
+      for (const voter of this.voters) {
+        if (
+          !this.pro.has(voter) &&
+          !this.contra.has(voter) &&
+          !this.abstain.has(voter)
+        ) {
+          missingVotes.push(voter)
+        }
+      }
       return (
         'Vote not completed yet. Need a majority of ' +
         this.votesRequired +
         ' votes to pass or reject the proposal.\n' +
         'Missing votes from: ' +
-        this.voters.filter(voter => !this.votes.has(voter))
+        missingVotes.join(', ')
       )
     } else if (proCount > contraCount && proCount >= this.votesRequired) {
       return (
