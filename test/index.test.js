@@ -101,7 +101,9 @@ describe('Votebot', () => {
       .mockReturnValue(Promise.resolve({ data: [] }))
     github.issues.getIssueLabels = jest
       .fn()
-      .mockReturnValueOnce(Promise.resolve([{ name: 'vote-in-progress' }]))
+      .mockReturnValueOnce(
+        Promise.resolve({ data: [{ name: 'vote-in-progress' }] })
+      )
     await app.receive({
       name: 'issue_comment.created',
       payload: issueCommentPlusOne

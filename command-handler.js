@@ -167,10 +167,10 @@ module.exports = async (context, command) => {
       })
     )
   } else {
-    let labelPromise = context.github.issues.getIssueLabels(context)
+    let labelPromise = context.github.issues.getIssueLabels(context.issue())
     let commentsPromise = getIssueComments(context)
     labelPromise.then(labels => {
-      if (labels.filter(label => label.name == 'vote-in-progress')) {
+      if (labels['data'].filter(label => label.name == 'vote-in-progress')) {
         commentsPromise.then(comments => {
           const votingInfo = new VotingInfo(comments)
           if (votingInfo.isCompleted) {
