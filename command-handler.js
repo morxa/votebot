@@ -133,6 +133,8 @@ class VotingInfo {
 module.exports = async (context, command) => {
   const args = command.arguments.split(' ')
   if (args[0] === 'init') {
+    // TODO Check privileges for init command
+    // @body We should only allow certain users to init a vote.
     const voters = args.slice(1)
     for (const voter of voters) {
       if (voter[0] !== '@') {
@@ -144,7 +146,8 @@ module.exports = async (context, command) => {
         )
         return
       }
-      // TODO: check that user actually exists
+      // TODO check that user actually exists
+      // @body Currently, we can have non-existing users in this list
       // context.github.search.users({q: voter + ' type:user'})
     }
     context.github.issues.createComment(
@@ -180,6 +183,8 @@ module.exports = async (context, command) => {
             context.github.issues.removeLabel(
               context.issue({ name: 'vote-in-progress' })
             )
+            // TODO the vote-completed label is not added correctly
+            // @body When the vote is completed, the vote-completed is not added.
             context.github.issues.addLabels(
               context.issue({ labels: ['vote-completed'] })
             )
